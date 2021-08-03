@@ -1,0 +1,29 @@
+#!/usr/bin/env groovy
+
+properties([
+      disableConcurrentBuilds(),
+      parameters([
+            string(
+               name: 'branch',
+               description: 'Git branch name',
+               defaultValue: 'master'
+            ),
+            booleanParam(
+               name: 'dry_run',
+               description: 'generate the config, but don\'t publish it',
+               defaultValue: false
+            ),
+      ]),
+])
+
+node('terraform') {
+    checkout scm
+    stage('terraform') {
+        dir('auto-peering-proxy') {
+            ansiColor('xterm') {
+                def dry_run = params.dry_run ? '--dry-run' : ''
+                sh "./bang.sh ${dry_run}"
+            }
+        }
+    }
+}
